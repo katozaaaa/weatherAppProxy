@@ -3,5 +3,9 @@ require('dotenv').config();
 module.exports = {
     WEATHER_API_KEY: process.env.WEATHER_API_KEY,
     WEATHER_API_URL: process.env.WEATHER_API_URL,
-    PORT: process.env.PORT || 3000,
+    LOCATION_BY_IP_API_URL: process.env.LOCATION_BY_IP_API_URL,
+    LOCATION_BY_LOCATION_NAME_API_URL: process.env.LOCATION_BY_LOCATION_NAME_API_URL,
+    LOCATION_BY_LOCATION_NAME_API_USERNAME: process.env.LOCATION_BY_LOCATION_NAME_API_USERNAME,
+    CACHE_DURATION: Number(process.env.CACHE_DURATION),
+    PORT: process.env.PORT || 3000
 };

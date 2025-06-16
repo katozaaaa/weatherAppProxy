@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+
 const { ALLOWED_ORIGINS } = require('./config');
 const weatherRouter = require('./routes/weather');
+const locationRouter = require('./routes/location');
 
 const app = express();
 
@@ -15,6 +17,7 @@ app.use(express.json());
 
 // Маршруты
 app.use('/api/weather', weatherRouter);
+app.use('/api/location', locationRouter);
 
 // Обработка ошибок
 app.use((err, req, res, next) => {

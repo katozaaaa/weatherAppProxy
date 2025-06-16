@@ -4,13 +4,29 @@ const weatherService = require('../services/weatherService.js');
 const cache = require('../cache/cache');
 const cacheMiddleware = require('../middlewares/cacheMiddleware');
 
-const getHandler = (method, getter)=> {
-    return async (req, res) => {
+router.get(
+    '/',
+    cacheMiddleware('weather'),
+    async (req, res) => {
         try {
             const { lat, lon } = req.query;
-            const data = await getter({ lat, lon });
 
-            const cacheKey = cache.generateKey(method, { lat, lon });
+            const data = await Promise.all([
+                weatherService.getCurrentWeather({ lat, lon }),
+                weatherService.getForecastWeather({ lat, lon })
+            ]).then(
+                (data) => {
+                    return {
+                        current: data[0],
+                        forecast: data[1]
+                    };
+                },
+                (error) => {
+                    throw error;
+                }
+            );
+
+            const cacheKey = cache.generateKey('weather', { lat, lon });
             cache.set(cacheKey, data);
 
             res.json(data);
@@ -20,18 +36,6 @@ const getHandler = (method, getter)=> {
             });
         }
     }
-}
-
-router.get(
-    '/current',
-    cacheMiddleware('current'),
-    getHandler('current', weatherService.getCurrentWeather.bind(weatherService)),
-);
-
-router.get(
-    '/forecast',
-    cacheMiddleware('forecast'),
-    getHandler('forecast', weatherService.getForecastWeather.bind(weatherService)),
 );
 
 module.exports = router;
