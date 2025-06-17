@@ -1,4 +1,5 @@
 const cache = require('memory-cache');
+
 const { CACHE_DURATION } = require('../config.js');
 
 class WeatherCache {
@@ -11,7 +12,7 @@ class WeatherCache {
     }
 
     generateKey (path, params) {
-        return `${path}:${JSON.stringify(params)}`
+        return `${path}:${JSON.stringify(params)}`;
     }
 }
 

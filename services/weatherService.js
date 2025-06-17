@@ -1,4 +1,5 @@
 const axios = require('axios');
+
 const { WEATHER_API_URL, WEATHER_API_KEY } = require('../config.js');
 
 class WeatherService {
@@ -25,7 +26,7 @@ class WeatherService {
         }
     }
 
-    async getForecastWeather(params) {
+    async getForecastWeather (params) {
         try {
             const response = await this.api.get(
                 '/forecast', { params }

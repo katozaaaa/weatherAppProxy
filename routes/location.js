@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const locationByIPService = require('../services/locationByIPService.js');
 const locationByLocationNameService = require('../services/locationByLocationNameService.js');
@@ -27,8 +28,8 @@ router.get(
                                     lat: location.lat,
                                     lon: location.lng,
                                     name: location.name,
-                                    countryName: location.countryName,
-                                }
+                                    countryName: location.countryName
+                                };
                             } else {
                                 throw new Error('Location data is missing');
                             }
@@ -47,15 +48,15 @@ router.get(
                     .then(
                         (data) => {
                             if (
-                                data['latitude'] && data['longitude'] &&
-                                (data['city'] || data['country_name'])
+                                data.latitude && data.longitude &&
+                                (data.city || data.country_name)
                             ) {
                                 return {
-                                    lat: data['latitude'],
-                                    lon: data['longitude'] ,
-                                    name: data['city'],
-                                    countryName: data['country_name'],
-                                }
+                                    lat: data.latitude,
+                                    lon: data.longitude,
+                                    name: data.city,
+                                    countryName: data.country_name
+                                };
                             } else {
                                 throw new Error('Location data is missing');
                             }

@@ -1,7 +1,8 @@
 const axios = require('axios');
+
 const {
     LOCATION_BY_LOCATION_NAME_API_URL,
-    LOCATION_BY_LOCATION_NAME_API_USERNAME,
+    LOCATION_BY_LOCATION_NAME_API_USERNAME
 } = require('../config.js');
 
 class LocationByLocationNameService {
@@ -15,7 +16,7 @@ class LocationByLocationNameService {
         });
     }
 
-    async getLocationBy(name) {
+    async getLocationBy (name) {
         try {
             const response = await this.api.get(
                 'searchJSON',
