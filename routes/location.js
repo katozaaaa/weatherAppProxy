@@ -11,63 +11,43 @@ router.get(
     cacheMiddleware('location'),
     async (req, res) => {
         try {
-            const { name } = req.query;
+            const { name, ip } = req.query;
             let data;
+            let params;
 
             if (name) {
                 data = await locationByLocationNameService.getLocationBy(name)
-                    .then(
-                        (data) => {
-                            const location = data.geonames[0];
+                    .then((data) => {
+                        return data?.geonames[0];
+                    });
 
-                            if (
-                                location.lat && location.lng &&
-                                (location.name || location.countryName)
-                            ) {
-                                return {
-                                    lat: location.lat,
-                                    lon: location.lng,
-                                    name: location.name,
-                                    countryName: location.countryName
-                                };
-                            } else {
-                                throw new Error('Location data is missing');
-                            }
-                        },
-                        (error) => {
-                            throw error;
-                        }
-                    );
-
-                const cacheKey = cache.generateKey('location', { name });
-                cache.set(cacheKey, data);
+                params = { name };
             } else {
-                const ip = '178.66.158.237' || req.headers['x-forwarded-for'] || req.ip;
-
-                data = await locationByIPService.getLocationBy(ip)
-                    .then(
-                        (data) => {
-                            if (
-                                data.latitude && data.longitude &&
-                                (data.city || data.country_name)
-                            ) {
-                                return {
-                                    lat: data.latitude,
-                                    lon: data.longitude,
-                                    name: data.city,
-                                    countryName: data.country_name
-                                };
-                            } else {
-                                throw new Error('Location data is missing');
-                            }
-                        },
-                        (error) => {
-                            throw error;
-                        }
-                    );
+                data = await locationByIPService.getLocationBy(ip);
+                params = { ip };
             }
 
-            res.json(data);
+            const result = {
+                lat: data.lat || data.latitude,
+                lon: data.lng || data.longitude,
+                placeName: data.name || data.city,
+                countryName: data.countryName || data.country_name
+            };
+
+            console.log(result);
+
+            if (
+                !result.lat ||
+                !result.lon ||
+                (!result.placeName && !result.countryName)
+            ) {
+                throw new Error('Some location data is missing');
+            }
+
+            const cacheKey = cache.generateKey('location', params);
+            cache.set(cacheKey, result);
+
+            res.json(result);
         } catch (error) {
             res.status(error.response?.status || 500).json({
                 error: error.message

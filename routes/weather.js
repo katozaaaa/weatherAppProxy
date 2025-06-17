@@ -21,9 +21,6 @@ router.get(
                         current: data[0],
                         forecast: data[1]
                     };
-                },
-                (error) => {
-                    throw error;
                 }
             );
 

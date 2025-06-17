@@ -8,11 +8,11 @@ function cacheMiddleware (path) {
         try {
             const cachedData = cache.get(cacheKey);
             if (cachedData) {
-                console.log('Cache hit for', cacheKey);
+                console.log('Cache hit. Key:', cacheKey);
                 return res.json(cachedData);
             }
 
-            console.log('Cache miss for', cacheKey);
+            console.log('Cache miss. Key:', cacheKey);
             next();
         } catch (error) {
             next(error);

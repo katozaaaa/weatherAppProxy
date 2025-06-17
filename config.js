@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 module.exports = {
+    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
     WEATHER_API_KEY: process.env.WEATHER_API_KEY,
     WEATHER_API_URL: process.env.WEATHER_API_URL,
     LOCATION_BY_IP_API_URL: process.env.LOCATION_BY_IP_API_URL,
