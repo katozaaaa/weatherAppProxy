@@ -1,7 +1,7 @@
 const cache = require('../cache/cache');
 
-function cacheMiddleware (path) {
-    return async (req, res, next) => {
+function cacheMiddleware(path) {
+    return async(req, res, next) => {
         const params = { ...req.query, ...req.params };
         const cacheKey = cache.generateKey(path, params);
 

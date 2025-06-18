@@ -3,7 +3,7 @@ const axios = require('axios');
 const { WEATHER_API_URL, WEATHER_API_KEY } = require('../config.js');
 
 class WeatherService {
-    constructor () {
+    constructor() {
         this.api = axios.create({
             baseURL: WEATHER_API_URL,
             params: {
@@ -13,30 +13,28 @@ class WeatherService {
         });
     }
 
-    async getCurrentWeather (params) {
-        try {
-            const response = await this.api.get(
-                '/weather', { params }
+    async getWeather(type, params) {
+        const response = await this.api.get(
+            `/${type}`, { params }
+        ).catch((error) => {
+            console.error(error.message);
+
+            if (error.response.status !== 404) {
+                throw new Error('Internal server error');
+            }
+
+            const publicError = new Error(
+                'No weather data was found for this location'
             );
 
-            return response.data;
-        } catch (error) {
-            console.error('Weather API error:', error.message);
-            throw error;
-        }
-    }
+            publicError.response = {
+                status: 404
+            };
 
-    async getForecastWeather (params) {
-        try {
-            const response = await this.api.get(
-                '/forecast', { params }
-            );
+            throw publicError;
+        });
 
-            return response.data;
-        } catch (error) {
-            console.error('Weather API error:', error.message);
-            throw error;
-        }
+        return response.data;
     }
 }
 

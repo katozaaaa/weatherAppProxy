@@ -9,18 +9,14 @@ const cacheMiddleware = require('../middlewares/cacheMiddleware');
 router.get(
     '/',
     cacheMiddleware('location'),
-    async (req, res) => {
+    async(req, res) => {
         try {
             const { name, ip } = req.query;
             let data;
             let params;
 
             if (name) {
-                data = await locationByLocationNameService.getLocationBy(name)
-                    .then((data) => {
-                        return data?.geonames[0];
-                    });
-
+                data = await locationByLocationNameService.getLocationBy(name);
                 params = { name };
             } else {
                 data = await locationByIPService.getLocationBy(ip);
@@ -33,8 +29,6 @@ router.get(
                 placeName: data.name || data.city,
                 countryName: data.countryName || data.country_name
             };
-
-            console.log(result);
 
             if (
                 !result.lat ||

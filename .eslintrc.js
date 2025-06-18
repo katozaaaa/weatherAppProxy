@@ -28,6 +28,7 @@ module.exports = {
         semi: [ 'warn', 'always' ],
         'object-curly-spacing': [ 'warn', 'always' ],
         'array-bracket-spacing': [ 'warn', 'always' ],
+        'space-before-function-paren': [ 'warn', 'never' ],
 
         // Node.js rules
         'node/no-unpublished-require': 'off',

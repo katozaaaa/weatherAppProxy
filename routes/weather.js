@@ -8,13 +8,13 @@ const cacheMiddleware = require('../middlewares/cacheMiddleware');
 router.get(
     '/',
     cacheMiddleware('weather'),
-    async (req, res) => {
+    async(req, res) => {
         try {
             const { lat, lon } = req.query;
 
             const data = await Promise.all([
-                weatherService.getCurrentWeather({ lat, lon }),
-                weatherService.getForecastWeather({ lat, lon })
+                weatherService.getWeather('weather', { lat, lon }),
+                weatherService.getWeather('forecast', { lat, lon })
             ]).then(
                 (data) => {
                     return {
