@@ -1,39 +1,57 @@
 const express = require('express');
 
 const router = express.Router();
-const weatherService = require('../services/weatherService.js');
-const cache = require('../cache/cache');
-const cacheMiddleware = require('../middlewares/cacheMiddleware');
+const weatherService = require('../services/external/weather.js');
+const cache = require('../services/cache/cache');
+const cacheMiddleware = require('../middlewares/cache');
+const errorMiddleware = require('../middlewares/error');
+const AppError = require('../errors/appError');
 
 router.get(
     '/',
     cacheMiddleware('weather'),
-    async(req, res) => {
-        try {
-            const { lat, lon } = req.query;
+    async(req, res, next) => {
+        const { lat, lon } = req.query;
+        const cacheKey = cache.generateKey('weather', { lat, lon });
 
-            const data = await Promise.all([
+        try {
+            const [
+                currentWeather,
+                forecastWeather
+            ] = await Promise.all([
                 weatherService.getWeather('weather', { lat, lon }),
                 weatherService.getWeather('forecast', { lat, lon })
-            ]).then(
-                (data) => {
-                    return {
-                        current: data[0],
-                        forecast: data[1]
-                    };
-                }
-            );
+            ]);
 
-            const cacheKey = cache.generateKey('weather', { lat, lon });
-            cache.set(cacheKey, data);
+            const data = {
+                current: currentWeather,
+                forecast: forecastWeather
+            };
 
-            res.json(data);
+            await cache.set(cacheKey, data);
+            return res.json(data);
         } catch (error) {
-            res.status(error.response?.status || 500).json({
-                error: error.message
-            });
+            let data;
+
+            if (error instanceof AppError) {
+                data = {
+                    message: error.message,
+                    internalMessage: error.internalMessage,
+                    status: error.status
+                };
+            } else {
+                data = {
+                    message: 'Internal server error',
+                    internalMessage: error.message,
+                    status: 500
+                };
+            }
+
+            await cache.set(cacheKey, { ...data, isError: true });
+            next(new AppError(data));
         }
-    }
+    },
+    errorMiddleware('weather')
 );
 
 module.exports = router;

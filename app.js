@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-const { ALLOWED_ORIGINS } = require('./config');
+const { ALLOWED_ORIGINS } = require('./config/config');
 const IPRouter = require('./routes/ip');
 const weatherRouter = require('./routes/weather');
 const locationRouter = require('./routes/location');
