@@ -18,7 +18,7 @@ jobs:
 
       - name: Create .env file on server
         run: |
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ./weatherApp &&
             echo 'ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}' > .env &&
             echo 'WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}' >> .env &&
@@ -29,6 +29,12 @@ jobs:
             echo 'CACHE_DURATION=${{ secrets.CACHE_DURATION }}' > .env &&
             chmod 600 .env  # Запрещаем чтение другим пользователям
           "
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Deploy to server
         run: |
