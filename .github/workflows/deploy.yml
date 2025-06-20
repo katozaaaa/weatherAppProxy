@@ -18,7 +18,7 @@ jobs:
 
       - name: Create .env file on server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ./weatherApp &&
             echo 'ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}' > .env &&
             echo 'WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}' >> .env &&
@@ -32,7 +32,7 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ./weatherApp &&
             git pull origin main &&
             docker build -t weather-app . &&
