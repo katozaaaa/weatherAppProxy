@@ -18,6 +18,8 @@ app.use('/api/ip', IPRouter);
 app.use('/api/weather', weatherRouter);
 app.use('/api/location', locationRouter);
 
+app.set('trust proxy', true);
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });

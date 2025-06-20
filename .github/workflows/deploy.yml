@@ -1,0 +1,40 @@
+name: CD Deployment
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create .env file on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd ./weatherApp &&
+            echo 'ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}' > .env &&
+            echo 'WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}' >> .env &&
+            echo 'WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}' >> .env &&
+            echo 'LOCATION_BY_IP_API_URL=${{ secrets.LOCATION_BY_IP_API_URL }}' >> .env &&
+            echo 'LOCATION_BY_LOCATION_NAME_API_URL=${{ secrets.LOCATION_BY_LOCATION_NAME_API_URL }}' >> .env &&
+            echo 'LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}' >> .env &&
+            echo 'CACHE_DURATION=${{ secrets.CACHE_DURATION }}' > .env &&
+            chmod 600 .env  # Запрещаем чтение другим пользователям
+          "
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd ./weatherApp &&
+            git pull origin main &&
+            docker build -t weather-app . &&
+            docker run -p 3000:3000 --env-file .env weather-app
+          "
