@@ -18,24 +18,35 @@ jobs:
 
       - name: Create .env file on server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-            cd ./weatherApp &&
-            echo 'ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}' > .env &&
-            echo 'WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}' >> .env &&
-            echo 'WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}' >> .env &&
-            echo 'LOCATION_BY_IP_API_URL=${{ secrets.LOCATION_BY_IP_API_URL }}' >> .env &&
-            echo 'LOCATION_BY_LOCATION_NAME_API_URL=${{ secrets.LOCATION_BY_LOCATION_NAME_API_URL }}' >> .env &&
-            echo 'LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}' >> .env &&
-            echo 'CACHE_DURATION=${{ secrets.CACHE_DURATION }}' > .env
-          "
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ./weatherApp
+            cat << 'EOL' > .env
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+            WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}
+            WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+            LOCATION_BY_IP_API_URL=${{ secrets.LOCATION_BY_IP_API_URL }}
+            LOCATION_BY_LOCATION_NAME_API_URL=${{ secrets.LOCATION_BY_LOCATION_NAME_API_URL }}
+            LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}
+            CACHE_DURATION=${{ secrets.CACHE_DURATION }}
+            EOL
+          EOF
 
       - name: Deploy to server
         run: |
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-            cd ./weatherApp &&
-            sudo docker stop weather-app || true &&
-            sudo docker rm weather-app || true &&
-            git pull origin main &&
-            docker build --network=host -t weather-app . &&
-            docker run -p 3000:3000 --env-file .env --name weather-app weather-app
-          "
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -euo pipefail
+            cd ./weatherApp
+          
+            docker stop weather-app || true
+            docker rm weather-app || true
+          
+            git pull origin main
+            docker build --network=host -t weather-app .
+          
+            docker run -d \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              --env-file .env \
+              --name weather-app \
+              weather-app
+          EOF
