@@ -37,5 +37,5 @@ jobs:
             sudo docker rm weather-app || true &&
             git pull origin main &&
             docker build --network=host -t weather-app . &&
-            docker run -p 3000:3000 --env-file .env weather-app
+            docker run -p 3000:3000 --env-file .env --name weather-app weather-app
           "
