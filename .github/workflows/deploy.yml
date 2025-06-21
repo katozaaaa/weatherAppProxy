@@ -22,18 +22,18 @@ jobs:
             cd ./weatherApp
             cat << 'EOL' > .env
             ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
-            WEATHER_API_URL=${{ secrets.WEATHER_API_URL }}
+            WEATHER_API_URL=${{ vars.WEATHER_API_URL }}
             WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
-            LOCATION_BY_IP_API_URL=${{ secrets.LOCATION_BY_IP_API_URL }}
-            LOCATION_BY_LOCATION_NAME_API_URL=${{ secrets.LOCATION_BY_LOCATION_NAME_API_URL }}
+            LOCATION_BY_IP_API_URL=${{ vars.LOCATION_BY_IP_API_URL }}
+            LOCATION_BY_LOCATION_NAME_API_URL=${{ vars.LOCATION_BY_LOCATION_NAME_API_URL }}
             LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}
-            CACHE_DURATION=${{ secrets.CACHE_DURATION }}
+            CACHE_DURATION=${{ vars.CACHE_DURATION }}
             EOL
           EOF
 
       - name: Deploy to server
         run: |
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -euo pipefail
             cd ./weatherApp
           
