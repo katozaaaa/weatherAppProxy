@@ -27,7 +27,6 @@ jobs:
             echo 'LOCATION_BY_LOCATION_NAME_API_URL=${{ secrets.LOCATION_BY_LOCATION_NAME_API_URL }}' >> .env &&
             echo 'LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}' >> .env &&
             echo 'CACHE_DURATION=${{ secrets.CACHE_DURATION }}' > .env &&
-            chmod 600 .env  # Запрещаем чтение другим пользователям
           "
 
       - name: Login to Docker Hub
@@ -40,6 +39,8 @@ jobs:
         run: |
           ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ./weatherApp &&
+            sudo docker stop weather-app || true &&
+            sudo docker rm weather-app || true &&
             git pull origin main &&
             docker build -t weather-app . &&
             docker run -p 3000:3000 --env-file .env weather-app
