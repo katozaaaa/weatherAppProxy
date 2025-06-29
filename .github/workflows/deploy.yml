@@ -16,18 +16,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Writing to .env file
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ./weatherApp
-            if [ -f .env ]; then
-                grep -v -e '^WEATHER_API_KEY=' -e '^LOCATION_BY_LOCATION_NAME_API_USERNAME=' .env > .env.tmp
-                mv .env.tmp .env
-            fi
-            echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
-            echo "LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}" >> .env
-          EOF
-
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
@@ -39,6 +27,13 @@ jobs:
             
             git reset --hard HEAD~1
             git pull origin main
+          
+            if [ -f .env ]; then
+              grep -v -e '^WEATHER_API_KEY=' -e '^LOCATION_BY_LOCATION_NAME_API_USERNAME=' .env > .env.tmp
+              mv .env.tmp .env
+            fi
+            echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
+            echo "LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}" >> .env
           
             docker build --network=host -t weather-app .
           
