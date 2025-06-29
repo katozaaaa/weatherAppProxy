@@ -9,7 +9,7 @@ const locationRouter = require('./routes/location');
 const app = express();
 
 app.use(cors({
-    origin: ALLOWED_ORIGINS
+    origin: ALLOWED_ORIGINS.split(',')
 }));
 
 app.use(express.json());
