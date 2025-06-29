@@ -16,19 +16,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Create .env file on server
+      - name: Writing to .env file
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ./weatherApp
-            cat << 'EOL' > .env
-            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
-            WEATHER_API_URL=${{ vars.WEATHER_API_URL }}
-            WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
-            LOCATION_BY_IP_API_URL=${{ vars.LOCATION_BY_IP_API_URL }}
-            LOCATION_BY_LOCATION_NAME_API_URL=${{ vars.LOCATION_BY_LOCATION_NAME_API_URL }}
-            LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}
-            CACHE_DURATION=${{ vars.CACHE_DURATION }}
-            EOL
+            if [ -f .env ]; then
+                grep -v -e '^WEATHER_API_KEY=' -e '^LOCATION_BY_LOCATION_NAME_API_USERNAME=' .env > .env.tmp
+                mv .env.tmp .env
+            fi
+            echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
+            echo "LOCATION_BY_LOCATION_NAME_API_USERNAME=${{ secrets.LOCATION_BY_LOCATION_NAME_API_USERNAME }}" >> .env
           EOF
 
       - name: Deploy to server
