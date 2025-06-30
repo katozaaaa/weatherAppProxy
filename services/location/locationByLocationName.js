@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const AppError = require('../../errors/appError');
+const AppError = require('../../exceptions/appError');
 const {
     LOCATION_BY_LOCATION_NAME_API_URL,
     LOCATION_BY_LOCATION_NAME_API_USERNAME
@@ -25,15 +25,22 @@ class LocationByLocationName {
                     q: name
                 }
             }
-        ).catch((error) => {
-            throw new AppError({
-                message: 'Internal server error',
-                internalMessage: error.message
-            });
-        });
+        );
 
         const data = response.data;
+        this._validateData(data);
 
+        const location = data.geonames[0];
+
+        return {
+            lat: location.lat,
+            lon: location.lng,
+            placeName: location.name,
+            countryName: location.countryName
+        };
+    }
+
+    _validateData(data) {
         if (data.totalResultsCount === 0) {
             throw new AppError({
                 message: 'No location found',
@@ -62,27 +69,6 @@ class LocationByLocationName {
                     'Error in getting location data by name'
             });
         }
-
-        const location = data.geonames[0];
-
-        if (
-            !location.lat ||
-            !location.lng ||
-            (!location.name && !location.countryName)
-        ) {
-            throw new AppError({
-                message: 'Bad request',
-                internalMessage: 'Some location data is missing',
-                status: 400
-            });
-        }
-
-        return {
-            lat: location.lat,
-            lon: location.lng,
-            placeName: location.name,
-            countryName: location.countryName
-        };
     }
 }
 

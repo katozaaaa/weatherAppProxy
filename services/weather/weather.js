@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const AppError = require('../../errors/appError');
+const AppError = require('../../exceptions/appError');
 const {
     WEATHER_API_URL,
     WEATHER_API_KEY
@@ -28,13 +28,15 @@ class Weather {
             if (error.response.status === 404) {
                 throw new AppError({
                     message: 'No weather data was found for this location',
-                    internalMessage: error.message
+                    internalMessage: error.message,
+                    stack: error.stack
                 });
             }
 
             throw new AppError({
                 message: 'Internal server error',
-                internalMessage: error.message
+                internalMessage: error.message,
+                stack: error.stack
             });
         }
     }

@@ -1,5 +1,5 @@
-const cache = require('../services/cache/cache');
-const AppError = require('../errors/appError');
+const cache = require('../tools/cache/cache');
+const AppError = require('../exceptions/appError');
 
 function cacheMiddleware(path) {
     return async(req, res, next) => {

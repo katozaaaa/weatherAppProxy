@@ -1,11 +1,10 @@
 const express = require('express');
 
 const router = express.Router();
-const weatherService = require('../services/external/weather.js');
-const cache = require('../services/cache/cache');
+const weatherService = require('../services/weather/weather.js');
+const cache = require('../tools/cache/cache');
 const cacheMiddleware = require('../middlewares/cache');
 const errorMiddleware = require('../middlewares/error');
-const AppError = require('../errors/appError');
 
 router.get(
     '/',
@@ -31,24 +30,8 @@ router.get(
             await cache.set(cacheKey, data);
             return res.json(data);
         } catch (error) {
-            let data;
-
-            if (error instanceof AppError) {
-                data = {
-                    message: error.message,
-                    internalMessage: error.internalMessage,
-                    status: error.status
-                };
-            } else {
-                data = {
-                    message: 'Internal server error',
-                    internalMessage: error.message,
-                    status: 500
-                };
-            }
-
-            await cache.set(cacheKey, { ...data, isError: true });
-            next(new AppError(data));
+            await cache.set(cacheKey, { ...error, isError: true });
+            next(error);
         }
     },
     errorMiddleware('weather')

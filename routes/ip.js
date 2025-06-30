@@ -1,33 +1,24 @@
 const express = require('express');
 
 const router = express.Router();
+const IpService = require('../services/ip/ip.js');
 const errorMiddleware = require('../middlewares/error');
-const AppError = require('../errors/appError');
+const AppError = require('../exceptions/appError');
 
 router.get(
     '/',
     async(req, res, next) => {
+        const ip = req.ip;
+
         try {
-            const ip = req.ip;
-
-            if (ip === '::ffff:172.17.0.1') {
-                // Backup IP for the localhost
-                res.json({ ip: '2.38.11.219' });
-                return;
-            }
-
-            res.json({ ip });
+            const data = IpService.getWorkingIp(ip);
+            res.json(data);
         } catch (error) {
-            if (error instanceof AppError) {
-                next(error);
-                return;
-            }
-
             next(
                 new AppError({
                     message: 'Internal server error',
                     internalMessage: error.message,
-                    status: 500
+                    stack: error.stack
                 })
             );
         }
